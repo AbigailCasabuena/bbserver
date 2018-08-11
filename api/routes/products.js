@@ -13,8 +13,15 @@ router.get('/',(req, res,next)=>{
     .find()
     .then(
         function(products){
-            res.json(products);
-            console.log("get");
+            //res.json(products);
+            console.log("get products");
+            if(products.length> 0){
+                res.status(200).json(products)
+            }else{
+                res.status(404).json({
+                    message: 'No entries found.'
+                })
+            }
         },
         function(err){
             res.sendStatus(400);
@@ -32,6 +39,7 @@ router.post("/", (req, res,next)=> {
             },
             function (error){
                 console.log('error');
+                res.sendStatus(400);
             }
         );
 });
@@ -49,7 +57,7 @@ router.post("/", (req, res,next)=> {
     });
 });*/
 
-router.get('/:productId',(req,res,next)=>{
+/*router.get('/:productId',(req,res,next)=>{
     const id = req.params.productId;
     if(id==='special'){
         res.status(200).json({
@@ -61,6 +69,51 @@ router.get('/:productId',(req,res,next)=>{
             message: 'You passed an id'
         });
     }
+});*/
+
+router.get('/:productId',(req, res,next)=>{
+    const id = req.params.productId;
+    prod.ProductModel
+    .findById(id)
+    .exec()
+    .then(
+        doc=>{
+            if(doc != null){
+                console.log(doc);
+                res.status(200).json({
+                product: doc
+                })
+            }else{
+                res.status(404).json({
+                    message: 'Not found.'
+                })
+            }
+        },
+        function (error){
+            res.status(404).json({
+                message: error.message
+            })
+            console.log('error');
+        }
+    )
+    .catch();
+});
+
+router.delete('/:productId',(req,res,next)=>{
+    const id = req.params.productId;
+    prod.ProductModel.remove({_id: id})
+    .exec()
+    .then(result => {
+        res.status(200).json({
+            message: 'Delete successful.'
+        });
+    })
+    .catch(err =>{
+        console.log(err);
+        res.status(500).json({
+            message: err.message
+        })
+    });
 });
 
 module.exports = router;

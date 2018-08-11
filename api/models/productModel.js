@@ -1,11 +1,9 @@
-// load the things we need
 var mongoose = require('mongoose');
 //var bcrypt   = require('bcrypt-nodejs');
 
-// define the schema for our user model
 var productSchema = mongoose.Schema({
-    name: { type: String},
-    price: { type: Number}
+    name: { type: String, required: true},
+    price: { type: Number, required: true}
 },{ collection: 'products' });
 
 
