@@ -4,3 +4,4 @@ mongoose.set("debug", true);
 
 
 module.exports.ProductModel = require("./productModel");
+module.exports.UserModel = require('./userModel');
