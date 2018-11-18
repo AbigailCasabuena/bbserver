@@ -9,6 +9,7 @@ require('./config/passport')(passport); // pass passport for configuration
 //Routes
 const prodRoutes = require('./api/routes/products');
 const userRoutes = require('./api/routes/users');
+const newsfeedRoutes = require('./api/routes/newsfeed');
 
 mongoose.Promise = global.Promise;
 
@@ -30,6 +31,7 @@ app.use(bodyParser.json());
 
 app.use('/products',prodRoutes);
 app.use('/users',userRoutes);
+app.use('/newsfeed',newsfeedRoutes);
 
 /*app.use((req,res,next)=> {
     res.status(200).json({

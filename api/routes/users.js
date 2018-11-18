@@ -3,28 +3,18 @@ const router = express.Router();
 const User = require('../models/userModel');
 var model = require("../models");
 var bcrypt   = require('bcrypt-nodejs');
+var crypto = require('crypto');
+var nodemailer = require('nodemailer');
+const Token = require('../models/verificationTokenModel');
+//const randomstring = require('randomstring');
 
 router.get('/',(req,res,next)=>{
     res.status(200).json({
         message: 'Handling GET requests to /users'
     });
-});
+}); 
 
-/*router.post("/signup", (req, res,next)=> {
-    model.UserModel
-        .create(req.body)
-        .then(
-            function (postObj){
-                console.log('success');
-                res.sendStatus(200);
-            },
-            function (error){
-                console.log(error.message);
-                res.sendStatus(400);
-            }
-        );
-});*/
-
+//signup w/o verification
 router.post("/signup", function(req, res) {
     model.UserModel.findOne({
       user_username: req.body.user_username
@@ -65,6 +55,63 @@ router.post("/signup", function(req, res) {
     }
     });
 });
+
+
+//signup w/ email(not yet working)
+/*router.post("/signup", function(req, res) {
+    model.UserModel.findOne({
+      user_username: req.body.user_username
+    }, function(err, user) {
+    if (user != null) {
+        //res.json(null);
+        console.log("duplicate username")
+        return res.status(403).json({
+            message: "Username has already been taken."
+        });
+    } 
+    else {
+        model.UserModel.findOne({
+            user_emailAdd: req.body.user_emailAdd
+        },function(err, user){
+            if(user != null){
+                console.log("duplicate email")
+                return res.status(403).json({
+                    message: "Email has already been used."
+                });
+            }else{
+                req.body.user_password = bcrypt.hashSync(req.body.user_password, bcrypt.genSaltSync(8), null);
+                model.UserModel
+                .create(req.body)
+                .then(
+                function() {
+                    // res.statusMessage = "hello"; // sets custom status message
+                    res.sendStatus(200);
+                    console.log('user created');
+                    var token = new Token({ user_username: req.body.user_username, token: crypto.randomBytes(16).toString('hex') });
+ 
+                    // Save the verification token
+                    token.save(function (err) {
+                        if (err) { return res.status(500).send({ msg: err.message }); }
+            
+                        // Send the email
+                        var transporter = nodemailer.createTransport({ service: 'Sendgrid', auth: { user: process.env.SENDGRID_USERNAME, pass: process.env.SENDGRID_PASSWORD } });
+                        var mailOptions = { from: 'no-reply@yourwebapplication.com', to: req.body.user_emailAdd, subject: 'Account Verification Token', text: 'Hello,\n\n' + 'Please verify your account by clicking the link: \nhttp:\/\/' + req.headers.host + '\/confirmation\/' + token.token + '.\n' };
+                        transporter.sendMail(mailOptions, function (err) {
+                            if (err) { return res.status(500).send({ msg: err.message + "error sendmail" }); }
+                            res.status(200).send('A verification email has been sent to ' + user.user_emailAdd + '.');
+                        });
+                    });
+                },
+                function(error){
+                    console.log(error.message)
+                    res.sendStatus(400);
+                }
+                )
+            }
+        })
+    }
+    });
+});*/
 
 router.post('/login',(req,res,next)=>{
     User.find({user_username: req.body.user_username})
