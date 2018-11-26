@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 var model = require("../models");
+const multer = require('multer');
+const upload = multer({dest: '/uploads/'});
 
 router.get('/',(req, res,next)=>{
     model.AnnouncementModel
@@ -25,5 +27,7 @@ router.get('/',(req, res,next)=>{
         }
         );
 });
+
+
 
 module.exports = router;
