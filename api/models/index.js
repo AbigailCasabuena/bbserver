@@ -7,3 +7,5 @@ mongoose.set("debug", true);
 module.exports.UserModel = require('./userModel');
 module.exports.VerificationTokenModel = require('./verificationTokenModel');
 module.exports.AnnouncementModel = require('./announcementModel');
+module.exports.UserWebModel = require('./userModelWeb');
+module.exports.NotificationModel = require('./notificationModel');

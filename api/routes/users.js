@@ -6,6 +6,7 @@ var bcrypt   = require('bcrypt-nodejs');
 var crypto = require('crypto');
 var nodemailer = require('nodemailer');
 const Token = require('../models/verificationTokenModel');
+const UserWeb = require('../models/userModelWeb');
 //const randomstring = require('randomstring');
 
 router.get('/',(req,res,next)=>{
@@ -55,6 +56,34 @@ router.post("/signup", function(req, res) {
     }
     });
 });
+
+router.get('/:username',(req, res,next)=>{
+    const uname = req.params.username;
+    model.UserModel
+    .find({user_username: uname})
+    .exec()
+    .then(
+        doc=>{
+            if(doc != null){
+                console.log("get user successxx");
+                res.status(200).send(doc);
+                console.log(doc);
+            }else{
+                res.status(404).json({
+                    message: 'Not found.'
+                })
+            }
+        },
+        function (error){
+            res.status(404).json({
+                message: error.message
+            })
+            console.log('error');
+        }
+    )
+    .catch();
+});
+
 
 
 //signup w/ email(not yet working)
@@ -121,9 +150,39 @@ router.post('/login',(req,res,next)=>{
             /*return res.status(401).json({
                 message: 'auth failed'
             })*/
-            console.log('username not found');
+
+            //return
+            /*
+                console.log('username not found');
             res.sendStatus(401);
             return res.status(401);
+            */
+           UserWeb.find({user_username: req.body.user_username})
+           .exec()
+           .then(userweb => {
+               if(userweb.length < 1){
+                console.log('username not found');
+                res.sendStatus(401);
+                return res.status(401);
+               }
+               if(bcrypt.compareSync(req.body.user_password,userweb[0].user_password)){
+                /*return res.status(200).json({
+                    message: 'auth successful',
+                    user: user[0]
+                })*/
+                    console.log('auth successful web');
+                    res.sendStatus(200);
+                    return res.status(200);
+                }
+                else{
+                    /*res.status(401).json({
+                        message: 'auth failed'
+                    })*/
+                    console.log('wrong pw');
+                    res.sendStatus(401);
+                    return res.status(401);
+                }
+           })
         }
         if(bcrypt.compareSync(req.body.user_password,user[0].user_password)){
             /*return res.status(200).json({
