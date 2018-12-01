@@ -6,6 +6,8 @@ var Schema = mongoose.Schema,
 var notificationSchema = new Schema({
     user_id: {type: String, required: false},
     content: {type: String, required: true},
+    type: {type: String, required: true},
+    content_id: {type: String, required: true}
 },{ collection: 'notifications' });
 
 

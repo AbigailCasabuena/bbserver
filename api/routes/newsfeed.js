@@ -1,8 +1,6 @@
 const express = require('express');
 const router = express.Router();
 var model = require("../models");
-const multer = require('multer');
-const upload = multer({dest: '/uploads/'});
 
 router.get('/',(req, res,next)=>{
     model.AnnouncementModel
@@ -11,7 +9,7 @@ router.get('/',(req, res,next)=>{
         function(announcements){
             //res.json(products);
             console.log("get announcements");
-            if(announcements.length> 0){
+            if(announcements.length > 0){
                 res.status(200).send(announcements);
                 var jsonval = [];
                 jsonval = announcements;
@@ -28,6 +26,30 @@ router.get('/',(req, res,next)=>{
         );
 });
 
-
+router.get('/:newsFeedId',(req, res,next)=>{
+    const id = req.params.newsFeedId;
+    model.AnnouncementModel
+    .find({_id: id})
+    .exec()
+    .then(
+        doc=>{
+            if(doc != null){
+                console.log(doc);
+                res.status(200).send(doc);
+            }else{
+                res.status(404).json({
+                    message: 'Not found.'
+                })
+            }
+        },
+        function (error){
+            res.status(404).json({
+                message: error.message
+            })
+            console.log('error');
+        }
+    )
+    .catch();
+});
 
 module.exports = router;

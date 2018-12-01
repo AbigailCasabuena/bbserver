@@ -17,6 +17,7 @@ mongoose.Promise = global.Promise;
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
+app.use('/uploads/',express.static('uploads'));
 
 /*app.use((req,res,next)=>{
     res.header("Access-Control-Allow-Origin","*");
@@ -40,6 +41,11 @@ app.use('/notification',notificationRoutes);
         message: 'It works!'
     });
 });*/
+/*app.use('/',(req,res,next)=>{
+    res.json({
+        message: "hello",
+    })
+})*/
 
 app.use((req,res,next)=>{
     const error= new Error('not found');
