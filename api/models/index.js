@@ -9,3 +9,4 @@ module.exports.VerificationTokenModel = require('./verificationTokenModel');
 module.exports.AnnouncementModel = require('./announcementModel');
 module.exports.UserWebModel = require('./userModelWeb');
 module.exports.NotificationModel = require('./notificationModel');
+module.exports.ImageModel = require('./imgModel');

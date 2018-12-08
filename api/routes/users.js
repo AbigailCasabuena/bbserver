@@ -7,7 +7,32 @@ var crypto = require('crypto');
 var nodemailer = require('nodemailer');
 const Token = require('../models/verificationTokenModel');
 const UserWeb = require('../models/userModelWeb');
+const multer = require('multer');
 //const randomstring = require('randomstring');
+
+const fileFilter = (req,file,cb)=>{
+    if(file.mimetype === 'image/jpeg' || file.mimetype === 'image/png'){
+        cb(null,true);
+    }else{
+        cb(null,false);
+    }
+}
+
+const storage2 = multer.diskStorage({
+    destination: function(req,file,cb){
+         cb(null,'./uploads/');
+    },
+    filename: function(req,file,cb){
+         cb(null, file.originalname);
+    }
+});
+
+const upload = multer({storage:storage2,
+    limits:{
+        fileSize: 1024 * 1024 * 20
+    },
+    fileFilter: fileFilter
+});
 
 router.get('/',(req,res,next)=>{
     res.status(200).json({
@@ -67,7 +92,7 @@ router.get('/:username',(req, res,next)=>{
             if(doc != null){
                 console.log("get user successxx");
                 res.status(200).send(doc);
-                console.log(doc);
+                //console.log(doc);
             }else{
                 res.status(404).json({
                     message: 'Not found.'
@@ -83,64 +108,6 @@ router.get('/:username',(req, res,next)=>{
     )
     .catch();
 });
-
-
-
-//signup w/ email(not yet working)
-/*router.post("/signup", function(req, res) {
-    model.UserModel.findOne({
-      user_username: req.body.user_username
-    }, function(err, user) {
-    if (user != null) {
-        //res.json(null);
-        console.log("duplicate username")
-        return res.status(403).json({
-            message: "Username has already been taken."
-        });
-    } 
-    else {
-        model.UserModel.findOne({
-            user_emailAdd: req.body.user_emailAdd
-        },function(err, user){
-            if(user != null){
-                console.log("duplicate email")
-                return res.status(403).json({
-                    message: "Email has already been used."
-                });
-            }else{
-                req.body.user_password = bcrypt.hashSync(req.body.user_password, bcrypt.genSaltSync(8), null);
-                model.UserModel
-                .create(req.body)
-                .then(
-                function() {
-                    // res.statusMessage = "hello"; // sets custom status message
-                    res.sendStatus(200);
-                    console.log('user created');
-                    var token = new Token({ user_username: req.body.user_username, token: crypto.randomBytes(16).toString('hex') });
- 
-                    // Save the verification token
-                    token.save(function (err) {
-                        if (err) { return res.status(500).send({ msg: err.message }); }
-            
-                        // Send the email
-                        var transporter = nodemailer.createTransport({ service: 'Sendgrid', auth: { user: process.env.SENDGRID_USERNAME, pass: process.env.SENDGRID_PASSWORD } });
-                        var mailOptions = { from: 'no-reply@yourwebapplication.com', to: req.body.user_emailAdd, subject: 'Account Verification Token', text: 'Hello,\n\n' + 'Please verify your account by clicking the link: \nhttp:\/\/' + req.headers.host + '\/confirmation\/' + token.token + '.\n' };
-                        transporter.sendMail(mailOptions, function (err) {
-                            if (err) { return res.status(500).send({ msg: err.message + "error sendmail" }); }
-                            res.status(200).send('A verification email has been sent to ' + user.user_emailAdd + '.');
-                        });
-                    });
-                },
-                function(error){
-                    console.log(error.message)
-                    res.sendStatus(400);
-                }
-                )
-            }
-        })
-    }
-    });
-});*/
 
 router.post('/login',(req,res,next)=>{
     User.find({user_username: req.body.user_username})
@@ -208,6 +175,169 @@ router.post('/login',(req,res,next)=>{
             message: err.message
         })
     });
+});
+
+router.get('/getId/:userId',(req, res,next)=>{
+    const id = req.params.userId;
+    model.UserModel
+    .find({_id: id})
+    .exec()
+    .then(
+        doc=>{
+            if(doc != null){
+                //console.log("get user successxx");
+                console.log(doc);
+                res.status(200).send(doc);
+            }else{
+                res.status(404).json({
+                    message: 'Not found.'
+                })
+            }
+        },
+        function (error){
+            res.status(404).json({
+                message: error.message
+            })
+            console.log('error');
+        }
+    )
+    .catch();
+});
+
+router.patch('/imageUpload/:userId',upload.single('user_image'),(req,res,next)=>{
+    console.log(req.file);
+    req.body.user_image = req.file.path;
+    model.UserModel.findByIdAndUpdate(req.params.userId,req.body)
+    .exec()
+    .then(result => {
+        console.log("Success update");
+        res.sendStatus(200);
+    }, function(error){
+        console.log(error.message);
+    })
+});
+
+router.patch('/:userId',(req,res,next)=>{
+    /*if(req.body.user_password == null){
+        console.log("no pw");
+    }*/
+    console.log(req.body);
+    if(!(req.body.user_password == null) && !(req.body.user_username == null)){
+        var namecheck = false;
+        var pwcheck = false;
+        
+        model.UserModel.findOne({
+            user_username: req.body.user_username
+          }, function(err, userx) {
+          if (userx != null) {
+              //res.json(null);
+            console.log("duplicate username");
+            //namecheck = false;
+          }else{
+            /*namecheck = true;
+            console.log("ok username");*/
+            model.UserModel.findOne({
+                _id: req.params.userId
+              }, function(err, user) {
+              if (user != null) {
+                  //res.json(null);
+                  if(bcrypt.compareSync(req.body.prevpw,user.user_password)){
+                    /*pwcheck = true;    
+                    console.log("okay pw");*/
+                    req.body.user_password = bcrypt.hashSync(req.body.user_password, bcrypt.genSaltSync(8), null);
+                    model.UserModel.findByIdAndUpdate(req.params.userId,req.body)
+                        .exec()
+                        .then(result => {
+                            console.log("Success update");
+                            res.sendStatus(200);
+                        }, function(error){
+                            console.log(error.message);
+                            //console.log("error xx")
+                            res.sendStatus(500);
+                    })  
+                  }else{
+                    console.log("wrong pw");
+                    //pwcheck = false;
+                  }
+              }else{
+                console.log("no user found");
+                res.sendStatus(404);
+              }
+            })
+    
+          }
+        })
+
+        /*if(namecheck == true && pwcheck == true){
+            req.body.user_password = bcrypt.hashSync(req.body.user_password, bcrypt.genSaltSync(8), null);
+            model.UserModel.findByIdAndUpdate(req.params.userId,req.body)
+                .exec()
+                .then(result => {
+                    console.log("Success update");
+                    res.sendStatus(200);
+                }, function(error){
+                    console.log(error.message);
+                    //console.log("error xx")
+                    res.sendStatus(500);
+            })  
+        }else{
+            console.log("Namecheck " + namecheck);
+            console.log("Pwcheck " + pwcheck);
+            console.log("error update username and password");
+            res.sendStatus(500);
+        }*/
+    }
+
+    if(!(req.body.user_username == null) && (req.body.user_password == null)){
+        model.UserModel.findOne({
+            user_username: req.body.user_username
+          }, function(err, user) {
+          if (user != null) {
+              //res.json(null);
+              console.log("duplicate username")
+              return res.status(403).json({
+                  message: "Username has already been taken."
+              });
+          }else{
+            model.UserModel.findByIdAndUpdate(req.params.userId,req.body)
+            .exec()
+            .then(result => {
+                console.log("Success update");
+                res.sendStatus(200);
+            }, function(error){
+                console.log(error.message);
+                res.sendStatus(500);
+            })
+          }
+        })
+    }
+    if(!(req.body.user_password == null) && (req.body.user_username == null)){
+        model.UserModel.findOne({
+            _id: req.params.userId
+          }, function(err, user) {
+          if (user != null) {
+              //res.json(null);
+              if(bcrypt.compareSync(req.body.prevpw,user.user_password)){
+                req.body.user_password = bcrypt.hashSync(req.body.user_password, bcrypt.genSaltSync(8), null);
+                model.UserModel.findByIdAndUpdate(req.params.userId,req.body)
+                .exec()
+                .then(result => {
+                    console.log("Success update");
+                    res.sendStatus(200);
+                }, function(error){
+                    console.log(error.message);
+                    res.sendStatus(500);
+                })      
+              }else{
+                  console.log("Wrong password");
+                  res.sendStatus(500);
+              }
+          }else{
+            console.log("no user found");
+            res.sendStatus(404);
+          }
+        })
+    }
 });
 
 module.exports = router;
