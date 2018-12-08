@@ -54,7 +54,7 @@ router.get('/',(req, res,next)=>{
             //res.json(products);
             console.log("get products");
             if(products.length> 0){
-                res.status(200).json(products)
+                res.status(200).send(products)
             }else{
                 res.status(404).json({
                     message: 'No entries found.'
