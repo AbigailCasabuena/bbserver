@@ -4,6 +4,50 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 var passport = require('passport');
 const mongoose = require('mongoose');
+
+//const myrouter = express.Router();
+var prod = require("./api/models");
+
+var server = require('http').Server(app);
+const port = process.env.PORT || 3000;
+server.listen(port);
+
+var socketio = require('socket.io');
+var websocket = socketio(server);
+
+//appxx = require('socket.io')();
+
+websocket.on('connection', (socket) => {
+    console.log('A client just joined on', socket.id);
+    socket.on('hello',()=>{
+        socket.emit('xx');
+    })
+    socket.on('try',()=>{
+        //myrouter.get('/',(req, res,next)=>{
+            prod.ProductModel
+            .find()
+            .then(
+                function(products){
+                    //res.json(products);
+                    console.log("get products");
+                    if(products.length> 0){
+                        socket.emit('prods',products);
+                        //res.status(200).send(products)
+                    }else{
+                        /*res.status(404).json({
+                            message: 'No entries found.'
+                        })*/
+                    }
+                },
+                function(err){
+                    //res.sendStatus(400);
+                }
+                );
+        //});
+        //console.log('hello');
+    })
+});
+
 //Passport
 require('./config/passport')(passport); // pass passport for configuration
 //Routes
@@ -61,5 +105,7 @@ app.use((error,req,res,next)=>{
         }
     });
 });
+
+console.log('listening to ' + port);
 
 module.exports = app;
