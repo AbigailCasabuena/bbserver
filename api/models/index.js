@@ -10,3 +10,4 @@ module.exports.AnnouncementModel = require('./announcementModel');
 module.exports.UserWebModel = require('./userModelWeb');
 module.exports.NotificationModel = require('./notificationModel');
 module.exports.ImageModel = require('./imgModel');
+module.exports.ResponseModel = require('./responseModel');

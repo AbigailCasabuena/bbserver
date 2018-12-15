@@ -55,6 +55,7 @@ const prodRoutes = require('./api/routes/products');
 const userRoutes = require('./api/routes/users');
 const newsfeedRoutes = require('./api/routes/newsfeed');
 const notificationRoutes = require('./api/routes/notifications');
+const responseRoutes = require('./api/routes/response');
 
 mongoose.Promise = global.Promise;
 
@@ -79,6 +80,7 @@ app.use('/products',prodRoutes);
 app.use('/users',userRoutes);
 app.use('/newsfeed',newsfeedRoutes);
 app.use('/notification',notificationRoutes);
+app.use('/response',responseRoutes);
 
 /*app.use((req,res,next)=> {
     res.status(200).json({
