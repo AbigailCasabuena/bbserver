@@ -11,3 +11,6 @@ module.exports.UserWebModel = require('./userModelWeb');
 module.exports.NotificationModel = require('./notificationModel');
 module.exports.ImageModel = require('./imgModel');
 module.exports.ResponseModel = require('./responseModel');
+module.exports.BloodRequestModel = require('./bloodRequestModel');
+module.exports.BloodStockModel = require('./bloodStockModel');
+module.exports.ChapterModel = require('./chapterModel');

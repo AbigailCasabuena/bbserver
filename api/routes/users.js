@@ -10,6 +10,8 @@ const UserWeb = require('../models/userModelWeb');
 const multer = require('multer');
 //const randomstring = require('randomstring');
 
+const Image = require('../models/imgModel');
+
 const fileFilter = (req,file,cb)=>{
     if(file.mimetype === 'image/jpeg' || file.mimetype === 'image/png'){
         cb(null,true);
@@ -214,6 +216,30 @@ router.patch('/imageUpload/:userId',upload.single('user_image'),(req,res,next)=>
         res.sendStatus(200);
     }, function(error){
         console.log(error.message);
+    })
+});
+
+router.post('/imageUpload',upload.array('path'),(req,res,next)=>{
+    //console.log(req[0].file);
+    console.log(req.files.length);
+    var pathval = [];
+    for(var a=0; a < req.files.length; a++){
+        pathval[a] = req.files[a].path;
+    }
+    const imgx = new Image({
+        path: pathval
+    });
+    imgx
+    .save()
+    .then(result => {
+        console.log(result);
+        res.status(201).json({
+            message: "Success"
+        })
+    })
+    .catch(err => {
+        res.sendStatus(500);
+        console.log(err.message);
     })
 });
 

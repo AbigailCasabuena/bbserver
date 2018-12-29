@@ -56,6 +56,9 @@ const userRoutes = require('./api/routes/users');
 const newsfeedRoutes = require('./api/routes/newsfeed');
 const notificationRoutes = require('./api/routes/notifications');
 const responseRoutes = require('./api/routes/response');
+const bloodstockRoutes = require('./api/routes/bloodstock');
+const chapterRoutes = require('./api/routes/chapter');
+const brequestRoutes = require('./api/routes/bloodrequest');
 
 mongoose.Promise = global.Promise;
 
@@ -81,6 +84,9 @@ app.use('/users',userRoutes);
 app.use('/newsfeed',newsfeedRoutes);
 app.use('/notification',notificationRoutes);
 app.use('/response',responseRoutes);
+app.use('/bloodstock', bloodstockRoutes);
+app.use('/chapter', chapterRoutes);
+app.use('/bloodrequest', brequestRoutes);
 
 /*app.use((req,res,next)=> {
     res.status(200).json({
