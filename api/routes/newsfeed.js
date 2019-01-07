@@ -5,7 +5,7 @@ const Response = require('../models/responseModel');
 
 router.get('/',(req, res,next)=>{
     model.AnnouncementModel
-    .find()
+    .find().sort({date_posted:-1}) 
     .then(
         function(announcements){
             //res.json(products);

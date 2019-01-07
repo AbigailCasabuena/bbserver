@@ -8,7 +8,4 @@ var announcementSchema = mongoose.Schema({
     date_posted: {type: Date, required: true},
 },{ collection: 'news_feed' });
 
-
-
-
 module.exports = mongoose.model('Announcements', announcementSchema);

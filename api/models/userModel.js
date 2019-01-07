@@ -21,6 +21,8 @@ var userSchema = mongoose.Schema({
     is_Active: {type: Boolean, default: false},
     donations_updated: {type: Boolean, default: false},
     user_bloodtype: {type: String, required: false},
+    //web
+    user_type: {type: String, required: true},
 },{ collection: 'user_mobile' });
 
 

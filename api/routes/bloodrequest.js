@@ -68,4 +68,41 @@ router.post("/",upload.array('request_form'),(req, res,next)=> {
     })
 });
 
+router.get('/:userId',(req, res,next)=>{
+    const id = req.params.userId;
+    BloodRequest.find({requester_id: id}).sort({date_requested:-1}) 
+    .select('_id patient_name number_bags date_requested request_status')
+    .exec()
+    .then(
+        doc=>{
+            if(doc != null){
+                console.log(doc);
+                res.status(200).send(doc);
+            }else{
+                res.status(404).json({
+                    message: 'Not found.'
+                })
+            }
+        },
+        function (error){
+            res.status(404).json({
+                message: error.message
+            })
+            console.log('error');
+        }
+    )
+    .catch();
+});
+
+router.patch('/:Id',(req,res,next)=>{
+    BloodRequest.findByIdAndUpdate(req.params.Id,req.body)
+    .exec()
+    .then(result => {
+        console.log("Success update");
+        res.sendStatus(200);
+    }, function(error){
+        console.log(error.message);
+    })
+});
+
 module.exports = router;
