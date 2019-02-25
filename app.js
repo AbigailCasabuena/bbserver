@@ -42,7 +42,7 @@ websocket.on('connection', (socket) => {
                 function(err){
                     //res.sendStatus(400);
                 }
-                );
+            );
         //});
         //console.log('hello');
     })
@@ -59,6 +59,7 @@ const responseRoutes = require('./api/routes/response');
 const bloodstockRoutes = require('./api/routes/bloodstock');
 const chapterRoutes = require('./api/routes/chapter');
 const brequestRoutes = require('./api/routes/bloodrequest');
+const bdonationRoutes = require('./api/routes/blooddonation');
 
 mongoose.Promise = global.Promise;
 
@@ -87,6 +88,7 @@ app.use('/response',responseRoutes);
 app.use('/bloodstock', bloodstockRoutes);
 app.use('/chapter', chapterRoutes);
 app.use('/bloodrequest', brequestRoutes);
+app.use('/blooddonation', bdonationRoutes);
 
 /*app.use((req,res,next)=> {
     res.status(200).json({
@@ -115,5 +117,91 @@ app.use((error,req,res,next)=>{
 });
 
 console.log('listening to ' + port);
+
+prod.BloodRequestModel
+    .find({request_status: 'pending'})
+    .then(
+        function(brequests){
+            console.log("checking blood requests");
+            if(brequests.length> 0){
+                for(var x=0; x<brequests.length; x++){
+                    //console.log(brequests[x].date_requested);
+                    var oneDay = 24*60*60*1000; 
+                    var dt = brequests[x].date_requested;
+                    var firstDate = new Date(dt.getFullYear(), dt.getMonth() + 1, dt.getDate());
+                    var current = new Date();
+                    var secondDate = new Date(current.getFullYear(), current.getMonth() + 1, current.getDate());
+                    //console.log(firstDate);
+                    var diffDays = Math.round(Math.abs((firstDate.getTime() - secondDate.getTime())/(oneDay)));
+                    console.log(diffDays);
+                    if(diffDays == 3){ //should be greater than 4 DAYS
+                        body = {
+                            request_status: 'expired'
+                        };
+                        prod.BloodRequestModel.findByIdAndUpdate(brequests[x]._id,body)
+                        .exec()
+                        .then(result => {
+                            console.log("blood request was expired");
+                            //res.sendStatus(200);
+                        }, function(error){
+                            console.log(error.message);
+                        })
+                    }
+                }
+            }else{
+                
+            }
+            },
+            function(err){
+                //res.sendStatus(400);
+            }
+    );
+
+
+//console.log(diffDays);
+
+function intervalFunc() {
+    console.log('checking blood requests');
+    prod.BloodRequestModel
+    .find({request_status: 'pending'})
+    .then(
+        function(brequests){
+            //console.log("get blood requests");
+            if(brequests.length> 0){
+                for(var x=0; x<brequests.length; x++){
+                    //console.log(brequests[x].date_requested);
+                    var oneDay = 24*60*60*1000; 
+                    var dt = brequests[x].date_requested;
+                    var firstDate = new Date(dt.getFullYear(), dt.getMonth() + 1, dt.getDate());
+                    var current = new Date();
+                    var secondDate = new Date(current.getFullYear(), current.getMonth() + 1, current.getDate());
+                    //console.log(firstDate);
+                    var diffDays = Math.round(Math.abs((firstDate.getTime() - secondDate.getTime())/(oneDay)));
+                    console.log(diffDays);
+                    if(diffDays == 3){ //should be greater than 4 DAYS
+                        body = {
+                            request_status: 'expired'
+                        };
+                        prod.BloodRequestModel.findByIdAndUpdate(brequests[x]._id,body)
+                        .exec()
+                        .then(result => {
+                            console.log("blood request was expired");
+                            //res.sendStatus(200);
+                        }, function(error){
+                            console.log(error.message);
+                        })
+                    }
+                }
+            }else{
+                
+            }
+            },
+            function(err){
+                //res.sendStatus(400);
+            }
+    );
+}
+  
+setInterval(intervalFunc, 86400000); //24 hrs
 
 module.exports = app;

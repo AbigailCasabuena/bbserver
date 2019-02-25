@@ -5,7 +5,8 @@ const Response = require('../models/responseModel');
 
 router.get('/',(req, res,next)=>{
     model.AnnouncementModel
-    .find().sort({date_posted:-1}) 
+    .find({nw_status: 'active'}).sort({date_posted:-1}) 
+    .populate('chapter')
     .then(
         function(announcements){
             //res.json(products);
@@ -14,7 +15,7 @@ router.get('/',(req, res,next)=>{
                 res.status(200).send(announcements);
                 var jsonval = [];
                 jsonval = announcements;
-                //console.log(jsonval);
+                console.log(jsonval);
             }else{
                 res.status(404).json({
                     message: 'No entries found.'
@@ -24,7 +25,7 @@ router.get('/',(req, res,next)=>{
         function(err){
             res.sendStatus(400);
         }
-        );
+    );
 });
 
 router.get('/:newsFeedId',(req, res,next)=>{

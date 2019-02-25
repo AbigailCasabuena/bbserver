@@ -6,7 +6,7 @@ const BloodStock = require('../models/bloodStockModel');
 router.get('/',(req, res,next)=>{
     BloodStock
     .find()
-    .select('_id blood_group num_stock blood_category chapter')
+    .select('_id blood_type rh_factor num_stock blood_component chapter')
     .populate('chapter')
     .exec()
     .then(
@@ -21,8 +21,8 @@ router.get('/',(req, res,next)=>{
 
 router.post('/check',(req, res,next)=>{
     BloodStock
-    .find({blood_group: req.body.blood_group, blood_category: req.body.blood_category, remaining: {$gte: req.body.num_stock}})
-    .select('_id blood_group blood_category chapter reserved remaining num_stock')
+    .find({blood_type: req.body.blood_type, rh_factor: req.body.rh_factor, blood_component: req.body.blood_component, remaining_stock: {$gte: req.body.num_stock}})
+    .select('_id blood_type rh_factor blood_component chapter reserved_stock remaining_stock num_stock')
     .populate('chapter')
     .exec()
     .then(

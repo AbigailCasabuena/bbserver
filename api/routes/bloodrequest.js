@@ -48,11 +48,13 @@ router.post("/",upload.array('request_form'),(req, res,next)=> {
     const brequest = new BloodRequest({
         requester_id: req.body.requester_id,
         patient_name: req.body.patient_name,
-        number_bags: req.body.number_bags,
+        no_of_bags: req.body.no_of_bags,
         chapter_id: req.body.chapter_id,
         is_urgent: req.body.is_urgent,
         person_claim: req.body.person_claim,
-        request_form: pathval
+        request_form: pathval,
+        request_type: "mobile_app",
+        hospital: req.body.hospital,
     });
     brequest
     .save()
@@ -71,7 +73,7 @@ router.post("/",upload.array('request_form'),(req, res,next)=> {
 router.get('/:userId',(req, res,next)=>{
     const id = req.params.userId;
     BloodRequest.find({requester_id: id}).sort({date_requested:-1}) 
-    .select('_id patient_name number_bags date_requested request_status')
+    .select('_id patient_name no_of_bags date_requested request_status')
     .exec()
     .then(
         doc=>{

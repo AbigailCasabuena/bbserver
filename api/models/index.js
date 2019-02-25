@@ -14,3 +14,4 @@ module.exports.ResponseModel = require('./responseModel');
 module.exports.BloodRequestModel = require('./bloodRequestModel');
 module.exports.BloodStockModel = require('./bloodStockModel');
 module.exports.ChapterModel = require('./chapterModel');
+module.exports.BloodDonationModel = require('./bloodDonationModel');

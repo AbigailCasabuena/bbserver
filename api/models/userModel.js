@@ -1,7 +1,9 @@
 var mongoose = require('mongoose');
 var bcrypt   = require('bcrypt-nodejs');
 
-var userSchema = mongoose.Schema({
+var Schema = mongoose.Schema,
+    ObjectId = Schema.ObjectId;
+var userSchema = new Schema({
     user_firstname: {type:String, required: true},
     user_middlename: {type:String, required: false},
     user_lastname: {type:String, required: true},
@@ -23,6 +25,7 @@ var userSchema = mongoose.Schema({
     user_bloodtype: {type: String, required: false},
     //web
     user_type: {type: String, required: true},
+    chapter_id: {type: ObjectId, required: false, ref: 'chapter'}, 
 },{ collection: 'user_mobile' });
 
 
@@ -34,4 +37,4 @@ userSchema.methods.validPassword = function(password) {
     return bcrypt.compareSync(password, this.password);
 };
 
-module.exports = mongoose.model('Users', userSchema);
+module.exports = mongoose.model('user', userSchema);
